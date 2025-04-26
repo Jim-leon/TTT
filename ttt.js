@@ -1,13 +1,13 @@
 const board = document.getElementById("board");
 const numEl = document.getElementById("num");
-let num = parseInt(numEl.innerHTML);
 const slider = document.getElementById("slider");
 const message = document.getElementById("message");
 const restart = document.getElementById("restart");
 let cells, currentPlayer, winningCombinations;
+let num = 3;
 
 slider.oninput = function () {
-   numEl.innerHTML = `${this.value} x ${this.value}`;
+   numEl.innerHTML = `Grid: ${this.value} x ${this.value}`;
 };
 
 slider.onmouseup = function (e) {
@@ -44,7 +44,7 @@ function handleClick(index) {
    cells[index] = currentPlayer;
    board.children[index].innerText = currentPlayer;
    if (checkWinner()) {
-      message.innerHTML = currentPlayer + " wins!<br />";
+      message.innerHTML = currentPlayer + " wins!";
       restart.style.display = "block";
    } else {
       currentPlayer = "O"; // Switch to AI
@@ -53,12 +53,13 @@ function handleClick(index) {
 }
 
 function aiMove() {
+   // Simpifed version
    const availableCells = cells.map((cell, index) => (cell === null ? index : null)).filter((index) => index !== null);
    const randomIndex = availableCells[Math.floor(Math.random() * availableCells.length)];
    cells[randomIndex] = currentPlayer;
    board.children[randomIndex].innerText = currentPlayer;
    if (checkWinner()) {
-      setTimeout(() => alert(currentPlayer + " wins!"), 10);
+      message.innerHTML = currentPlayer + " wins!";
    } else {
       currentPlayer = "X"; // Switch back to player
    }

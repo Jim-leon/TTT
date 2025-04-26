@@ -33,3 +33,11 @@ body {
 #restart {
    display: none;
 }
+button {
+   background: rgb(78, 52, 250);
+   color: white;
+   padding: 10px 20px;
+   border-radius: 10px;
+   font-weight: bold;
+   font-size: large;
+}
