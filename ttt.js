@@ -43,9 +43,11 @@ function handleClick(index) {
    if (cells[index] || checkWinner()) return; // Ignore if cell is already filled or game is over
    cells[index] = currentPlayer;
    board.children[index].innerText = currentPlayer;
-   if (checkWinner()) {
-      message.innerHTML = currentPlayer + " wins!";
-      restart.style.display = "block";
+   const check = checkWinner();
+   if (check == "draw") {
+      winMessage(true);
+   } else if (check) {
+      winMessage();
    } else {
       currentPlayer = "O"; // Switch to AI
       aiMove();
@@ -58,13 +60,20 @@ function aiMove() {
    const randomIndex = availableCells[Math.floor(Math.random() * availableCells.length)];
    cells[randomIndex] = currentPlayer;
    board.children[randomIndex].innerText = currentPlayer;
-   if (checkWinner()) {
-      message.innerHTML = currentPlayer + " wins!";
+   const check = checkWinner();
+   if (check == "draw") {
+      winMessage(true);
+   } else if (check) {
+      winMessage();
    } else {
       currentPlayer = "X"; // Switch back to player
    }
 }
 
+function winMessage(isDraw = false) {
+   restart.style.display = "block";
+   message.innerHTML = isDraw ? "It's a Draw!" : currentPlayer == "O" ? "Computer wins" : "You win";
+}
 // Determine best move for AI
 // function aiMove() {
 //    let bestVal = -Infinity;
@@ -131,6 +140,7 @@ function checkWinner() {
    if (result) {
       currentCombination.forEach((c) => (board.children[c].style.color = "red"));
    }
+   if (cells.every((element) => element !== null)) return "draw";
    return result;
 }
 
