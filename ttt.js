@@ -54,51 +54,82 @@ function handleClick(index) {
    }
 }
 
-function aiMove() {
-   // Simpifed version
-   const availableCells = cells.map((cell, index) => (cell === null ? index : null)).filter((index) => index !== null);
-   const randomIndex = availableCells[Math.floor(Math.random() * availableCells.length)];
-   cells[randomIndex] = currentPlayer;
-   board.children[randomIndex].innerText = currentPlayer;
-   const check = checkWinner();
-   if (check == "draw") {
-      winMessage(true);
-   } else if (check) {
-      winMessage();
-   } else {
-      currentPlayer = "X"; // Switch back to player
-   }
-}
+// function aiMove() {
+//    // Simpifed version
+//    const availableCells = cells.map((cell, index) => (cell === null ? index : null)).filter((index) => index !== null);
+//    const randomIndex = availableCells[Math.floor(Math.random() * availableCells.length)];
+//    cells[randomIndex] = currentPlayer;
+//    board.children[randomIndex].innerText = currentPlayer;
+//    const check = checkWinner();
+//    if (check == "draw") {
+//       winMessage(true);
+//    } else if (check) {
+//       winMessage();
+//    } else {
+//       currentPlayer = "X"; // Switch back to player
+//    }
+// }
 
 function winMessage(isDraw = false) {
    restart.style.display = "block";
    message.innerHTML = isDraw ? "It's a Draw!" : currentPlayer == "O" ? "Computer wins" : "You win";
 }
 // Determine best move for AI
-// function aiMove() {
-//    let bestVal = -Infinity;
-//    let bestMove = -1;
-//    cells.forEach((cell, idx) => {
-//       console.log(cell, idx);
+function aiMove() {
+   let bestVal = -Infinity;
+   let bestMove = -1;
+   console.log(cells);
+   cells.forEach((cell, idx) => {
+      console.log(cell, idx);
 
-//       if (cell === null) {
-//          board[idx] = currentPlayer;
-//          const moveVal = minimax(board, 0, false);
-//          board[idx] = null;
-//          if (moveVal > bestVal) {
-//             bestMove = idx;
-//             bestVal = moveVal;
-//          }
-//       }
-//    });
-//    board.children[bestVal].innerText = currentPlayer;
-//    if (checkWinner()) {
-//       setTimeout(() => alert(currentPlayer + " wins!"), 10);
-//    } else {
-//       currentPlayer = "X"; // Switch back to player
-//    }
-//    return bestMove; // index 0-8 of optimal move
-// }
+      if (cell === null) {
+         cells[idx] = currentPlayer;
+         const moveVal = minimax(cells, 0, false);
+         cells[idx] = null;
+         if (moveVal > bestVal) {
+            bestMove = idx;
+            bestVal = moveVal;
+         }
+      }
+   });
+   board.children[bestVal].innerText = currentPlayer;
+   if (checkWinner()) {
+      setTimeout(() => alert(currentPlayer + " wins!"), 10);
+   } else {
+      currentPlayer = "X"; // Switch back to player
+   }
+   return bestMove; // index 0-8 of optimal move
+}
+
+// Minimax recursion
+function minimax(currentBoard, depth, isMaximizing) {
+   const score = evaluate(currentBoard);
+   if (score !== null) {
+      return score;
+   }
+   if (isMaximizing) {
+      let best = -Infinity;
+      currentBoard.forEach((cell, idx) => {
+         if (cell === null) {
+            currentBoard[idx] = "O";
+            best = Math.max(best, minimax(currentBoard, depth + 1, false));
+            currentBoard[idx] = null;
+         }
+      });
+      return best;
+   } else {
+      let best = +Infinity;
+      currentBoard.forEach((cell, idx) => {
+         if (cell === null) {
+            currentBoard[idx] = "X";
+            best = Math.min(best, minimax(currentBoard, depth + 1, true));
+            currentBoard[idx] = null;
+         }
+      });
+      return best;
+   }
+}
+
 
 function getWinningCombination() {
    winningCombinations = [];
@@ -144,44 +175,13 @@ function checkWinner() {
    return result;
 }
 
-// Minimax recursion
-function minimax(board, depth, isMaximizing) {
-   const score = evaluate(board);
-   if (score !== null) {
-      return score;
-   }
-   if (isMaximizing) {
-      let best = -Infinity;
-      board.forEach((cell, idx) => {
-         if (cell === null) {
-            board[idx] = "O";
-            best = Math.max(best, minimax(board, depth + 1, false));
-            board[idx] = null;
-         }
-      });
-      return best;
-   } else {
-      let best = +Infinity;
-      board.forEach((cell, idx) => {
-         if (cell === null) {
-            board[idx] = "X";
-            best = Math.min(best, minimax(board, depth + 1, true));
-            board[idx] = null;
-         }
-      });
-      return best;
-   }
-}
 
 function evaluate(board) {
-   for (let line of winningCombinations) {
-      const [a, b, c] = line;
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-         return board[a] === "O" ? +10 : -10;
-      }
-   }
+   const result = winningCombinations.some((combination) => {
+      const check = combination.every((index) => board[index] === currentPlayer);
+      return check ? +10 : -10;
+   });
 
-   const cellArr = Array.from(cells);
    // No winner, check for moves left
-   return cellArr.includes(null) ? null : 0;
+   return board.includes(null) ? null : 0;
 }
